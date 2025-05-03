@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Student Manager App</string>
+    <string name="student_list">Quản lý sinh viên</string>
+    <string name="add_student">Thêm sinh viên</string>
+    <string name="add_student_title">Thông tin sinh viên mới</string>
+    <string name="other_options">Menu tùy chọn</string>
+</resources>

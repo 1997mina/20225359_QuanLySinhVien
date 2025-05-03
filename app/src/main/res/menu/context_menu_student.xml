@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/menu_update"
+        android:icon="@android:drawable/ic_menu_edit"
+        android:title="Cập nhật" />
+
+    <item
+        android:id="@+id/menu_delete"
+        android:title="Xóa"
+        android:icon="@android:drawable/ic_menu_delete" />
+
+    <item
+        android:id="@+id/menu_call"
+        android:title="Gọi điện"
+        android:icon="@android:drawable/ic_menu_call" />
+
+    <item
+        android:id="@+id/menu_email"
+        android:title="Gửi email"
+        android:icon="@android:drawable/ic_menu_send" />
+</menu>
