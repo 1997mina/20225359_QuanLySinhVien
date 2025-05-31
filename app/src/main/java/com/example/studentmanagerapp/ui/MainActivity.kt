@@ -4,6 +4,7 @@ import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
+import android.widget.SearchView
 import android.widget.Toast
 
 import androidx.activity.enableEdgeToEdge
@@ -38,7 +39,7 @@ class MainActivity: AppCompatActivity() {
         fabAddStudent = findViewById(R.id.fab_add_student)
 
         recyclerView.layoutManager = LinearLayoutManager(this)
-        updateStudentList()
+        updateStudentList("")
 
         fabAddStudent.setOnClickListener {
             openAddStudentActivity()
@@ -54,11 +55,40 @@ class MainActivity: AppCompatActivity() {
         }
         recyclerView.adapter = adapter
         registerForContextMenu(recyclerView)
+
+        setupSearchView()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.main_menu, menu)
         return true
+    }
+
+    private fun setupSearchView() {
+        val searchView = findViewById<SearchView>(R.id.search_view)
+
+        searchView.isIconified = true
+
+        searchView.setOnCloseListener {
+            updateStudentList("")
+            false
+        }
+
+        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String): Boolean {
+                updateStudentList(query)
+                return true
+            }
+
+            override fun onQueryTextChange(newText: String): Boolean {
+                updateStudentList(newText)
+                return true
+            }
+        })
+
+        searchView.setOnClickListener {
+            searchView.isIconified = false
+        }
     }
 
     @Deprecated("This method has been deprecated in favor of using the Activity Result API\n      which brings increased type safety via an {@link ActivityResultContract} and the prebuilt\n      contracts for common intents available in\n      {@link androidx.activity.result.contract.ActivityResultContracts}, provides hooks for\n      testing, and allow receiving results in separate, testable classes independent from your\n      activity. Use\n      {@link #registerForActivityResult(ActivityResultContract, ActivityResultCallback)}\n      with the appropriate {@link ActivityResultContract} and handling the result in the\n      {@link ActivityResultCallback#onActivityResult(Object) callback}.")
@@ -84,8 +114,13 @@ class MainActivity: AppCompatActivity() {
         startActivityForResult(intent, UPDATE_STUDENT_REQUEST)
     }
 
-    private fun updateStudentList() {
-        val students = StudentDataSource.getStudents()
+    private fun updateStudentList(query: String = "") {
+        val students = if (query.isEmpty()) {
+            StudentDataSource.getStudents()
+        } else {
+            StudentDataSource.searchStudents(query)
+        }
+
         adapter = StudentListAdapter(students) { student, action ->
             when (action) {
                 "update" -> updateStudent(student)

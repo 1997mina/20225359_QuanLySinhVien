@@ -5,4 +5,5 @@
     <color name="blue">#0D1BE2</color>
     <color name="gray">#787878</color>
     <color name="student_item_color">#98FAF7</color>
+    <color name="search_box_color">#E2E1E1</color>
 </resources>

@@ -1,24 +1,32 @@
 package com.example.studentmanagerapp.data
 
+import android.content.Context
+import com.example.studentmanagerapp.database.StudentDatabase
+
 object StudentDataSource {
-    private val studentList = mutableListOf<Student>()
+    private lateinit var database: StudentDatabase
+
+    fun initialize(context: Context) {
+        database = StudentDatabase(context)
+    }
 
     fun getStudents(): List<Student> {
-        return studentList.toList()
+        return database.getAllStudents()
     }
 
     fun addStudent(student: Student) {
-        studentList.add(student)
+        database.addStudent(student)
+    }
+
+    fun updateStudent(student: Student) {
+        database.updateStudent(student)
     }
 
     fun removeStudent(student: Student) {
-        studentList.remove(student)
+        database.deleteStudent(student)
     }
 
-    fun updateStudent(updatedStudent: Student) {
-        val index = studentList.indexOfFirst { it.id == updatedStudent.id }
-        if (index != -1) {
-            studentList[index] = updatedStudent
-        }
+    fun searchStudents(query: String): List<Student> {
+        return database.searchStudents(query)
     }
 }
