@@ -1,7 +1,10 @@
 package com.example.studentmanagerapp.ui
 
+import android.Manifest
+import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.Menu
 import android.widget.SearchView
@@ -9,7 +12,10 @@ import android.widget.Toast
 
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
+import androidx.core.net.toUri
 import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -18,7 +24,6 @@ import com.example.studentmanagerapp.R
 import com.example.studentmanagerapp.data.Student
 import com.example.studentmanagerapp.data.StudentDataSource
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import androidx.core.net.toUri
 
 class MainActivity: AppCompatActivity() {
     private lateinit var recyclerView: RecyclerView
@@ -51,12 +56,31 @@ class MainActivity: AppCompatActivity() {
                 "delete" -> confirmDeleteStudent(student)
                 "call" -> callStudent(student.phone)
                 "email" -> emailStudent(student.email)
+                "sms" -> {
+                    lastClickedStudent = student
+                    sendSms(student)
+                }
             }
         }
         recyclerView.adapter = adapter
         registerForContextMenu(recyclerView)
 
         setupSearchView()
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == SMS_PERMISSION_REQUEST_CODE) {
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                lastClickedStudent?.let { sendSms(it) }
+            } else {
+                Toast.makeText(this, "Cần cấp quyền để gửi tin nhắn", Toast.LENGTH_SHORT).show()
+            }
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -127,6 +151,10 @@ class MainActivity: AppCompatActivity() {
                 "delete" -> confirmDeleteStudent(student)
                 "call" -> callStudent(student.phone)
                 "email" -> emailStudent(student.email)
+                "sms" -> {
+                    lastClickedStudent = student
+                    sendSms(student)
+                }
             }
         }
         recyclerView.adapter = adapter
@@ -160,8 +188,36 @@ class MainActivity: AppCompatActivity() {
         startActivity(Intent.createChooser(intent, "Gửi email bằng..."))
     }
 
+    @SuppressLint("QueryPermissionsNeeded")
+    private fun sendSms(student: Student) {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.SEND_SMS)
+            != PackageManager.PERMISSION_GRANTED) {
+
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.SEND_SMS),
+                SMS_PERMISSION_REQUEST_CODE
+            )
+            return
+        }
+
+        val uri = "smsto:${student.phone}".toUri()
+        val intent = Intent(Intent.ACTION_SENDTO, uri).apply {
+            putExtra("sms_body", "Xin chào ${student.fullName},\n")
+        }
+
+        if (intent.resolveActivity(packageManager) != null) {
+            startActivity(intent)
+        } else {
+            Toast.makeText(this, "Không tìm thấy ứng dụng nhắn tin", Toast.LENGTH_SHORT).show()
+        }
+    }
+
     companion object {
         const val ADD_STUDENT_REQUEST = 1
         const val UPDATE_STUDENT_REQUEST = 2
+
+        private const val SMS_PERMISSION_REQUEST_CODE = 101
+        private var lastClickedStudent: Student? = null
     }
 }

@@ -11,6 +11,11 @@
         android:icon="@android:drawable/ic_menu_delete" />
 
     <item
+        android:id="@+id/menu_sms"
+        android:title="Nhắn tin"
+        android:icon="@android:drawable/ic_dialog_email" />
+
+    <item
         android:id="@+id/menu_call"
         android:title="Gọi điện"
         android:icon="@android:drawable/ic_menu_call" />

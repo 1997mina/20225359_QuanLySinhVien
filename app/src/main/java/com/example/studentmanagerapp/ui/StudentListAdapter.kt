@@ -45,6 +45,10 @@ class StudentListAdapter(
                         onItemAction(student, "delete")
                         true
                     }
+                    R.id.menu_sms -> {
+                        onItemAction(student, "sms")
+                        true
+                    }
                     R.id.menu_call -> {
                         onItemAction(student, "call")
                         true

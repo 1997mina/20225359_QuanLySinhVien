@@ -2,8 +2,10 @@ package com.example.studentmanagerapp.database
 
 import android.content.ContentValues
 import android.content.Context
+
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
+
 import com.example.studentmanagerapp.data.Student
 
 class StudentDatabase(context: Context) : SQLiteOpenHelper(
