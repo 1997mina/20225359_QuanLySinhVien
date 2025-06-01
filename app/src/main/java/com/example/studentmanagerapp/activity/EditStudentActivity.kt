@@ -1,4 +1,4 @@
-package com.example.studentmanagerapp.ui
+package com.example.studentmanagerapp.activity
 
 import android.annotation.SuppressLint
 import android.app.Activity

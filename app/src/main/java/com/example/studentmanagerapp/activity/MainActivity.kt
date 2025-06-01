@@ -1,4 +1,4 @@
-package com.example.studentmanagerapp.ui
+package com.example.studentmanagerapp.activity
 
 import android.Manifest
 import android.annotation.SuppressLint
@@ -23,6 +23,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.studentmanagerapp.R
 import com.example.studentmanagerapp.data.Student
 import com.example.studentmanagerapp.data.StudentDataSource
+import com.example.studentmanagerapp.adapter.StudentListAdapter
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 class MainActivity: AppCompatActivity() {

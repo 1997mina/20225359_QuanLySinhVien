@@ -1,5 +1,8 @@
-package com.example.studentmanagerapp.ui
+package com.example.studentmanagerapp.adapter
 
+import android.content.Context
+import android.content.Intent
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,6 +13,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
 import com.example.studentmanagerapp.R
+import com.example.studentmanagerapp.activity.StudentDetailActivity
 import com.example.studentmanagerapp.data.Student
 
 class StudentListAdapter(
@@ -21,6 +25,27 @@ class StudentListAdapter(
         val nameTextView: TextView = view.findViewById(R.id.student_name)
         val idTextView: TextView = view.findViewById(R.id.student_id)
         val menuButton: ImageButton = view.findViewById(R.id.btn_menu)
+
+        init {
+            view.setOnClickListener {
+                val position = adapterPosition
+                if (position != RecyclerView.NO_POSITION && position < students.size) {
+                    val student = students[position]
+                    openStudentDetail(view.context, student)
+                }
+            }
+        }
+
+        private fun openStudentDetail(context: Context, student: Student) {
+            try {
+                val intent = Intent(context, StudentDetailActivity::class.java).apply {
+                    putExtra("STUDENT", student)
+                }
+                context.startActivity(intent)
+            } catch (e: Exception) {
+                Log.e("ITEM_CLICK", "Lỗi mở chi tiết: ${e.message}")
+            }
+        }
 
         fun bind(student: Student) {
             nameTextView.text = student.fullName
