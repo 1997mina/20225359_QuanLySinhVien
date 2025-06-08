@@ -9,10 +9,16 @@ import android.widget.TextView
 import android.widget.Toast
 
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
 
-import com.example.studentmanagerapp.data.Student
+import com.example.studentmanagerapp.database.Student
 import com.example.studentmanagerapp.R
-import com.example.studentmanagerapp.data.StudentDataSource
+import com.example.studentmanagerapp.viewmodel.StudentViewModel
+
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class EditStudentActivity : AppCompatActivity() {
     private var isUpdate: Boolean = false
@@ -52,28 +58,32 @@ class EditStudentActivity : AppCompatActivity() {
         val phone = findViewById<EditText>(R.id.edit_phone).text.toString()
 
         if (fullName.isNotEmpty() && studentId.isNotEmpty() && email.isNotEmpty() && phone.isNotEmpty()) {
-            if (isUpdate) {
-                StudentDataSource.updateStudent(
-                    currentStudent.copy(
-                        fullName = fullName,
-                        studentId = studentId,
-                        email = email,
-                        phone = phone
-                    )
-                )
-            } else {
-                StudentDataSource.addStudent(
-                    Student(
-                        fullName = fullName,
-                        studentId = studentId,
-                        email = email,
-                        phone = phone
-                    )
-                )
-            }
+            val viewModel = ViewModelProvider(this)[StudentViewModel::class.java]
 
-            setResult(Activity.RESULT_OK)
-            finish()
+            viewModel.viewModelScope.launch {
+                if (isUpdate) {
+                    val updatedStudent = currentStudent.copy(
+                        fullName = fullName,
+                        studentId = studentId,
+                        email = email,
+                        phone = phone
+                    )
+                    viewModel.update(updatedStudent)
+                } else {
+                    val newStudent = Student(
+                        fullName = fullName,
+                        studentId = studentId,
+                        email = email,
+                        phone = phone
+                    )
+                    viewModel.insert(newStudent)
+                }
+
+                withContext(Dispatchers.Main) {
+                    setResult(Activity.RESULT_OK)
+                    finish()
+                }
+            }
         } else {
             Toast.makeText(this, "Vui lòng nhập đầy đủ thông tin của sinh viên", Toast.LENGTH_SHORT).show()
         }

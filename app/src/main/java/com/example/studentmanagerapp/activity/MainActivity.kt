@@ -17,17 +17,19 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.net.toUri
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 
 import com.example.studentmanagerapp.R
-import com.example.studentmanagerapp.data.Student
-import com.example.studentmanagerapp.data.StudentDataSource
+import com.example.studentmanagerapp.database.Student
 import com.example.studentmanagerapp.adapter.StudentListAdapter
+import com.example.studentmanagerapp.viewmodel.StudentViewModel
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 class MainActivity: AppCompatActivity() {
     private lateinit var recyclerView: RecyclerView
+    private lateinit var viewModel: StudentViewModel
     private lateinit var adapter: StudentListAdapter
     private lateinit var fabAddStudent: FloatingActionButton
 
@@ -43,6 +45,7 @@ class MainActivity: AppCompatActivity() {
 
         recyclerView = findViewById(R.id.student_recycler_view)
         fabAddStudent = findViewById(R.id.fab_add_student)
+        viewModel = ViewModelProvider(this)[StudentViewModel::class.java]
 
         recyclerView.layoutManager = LinearLayoutManager(this)
         updateStudentList("")
@@ -51,19 +54,15 @@ class MainActivity: AppCompatActivity() {
             openAddStudentActivity()
         }
 
-        adapter = StudentListAdapter(StudentDataSource.getStudents()) { student, action ->
-            when (action) {
-                "update" -> updateStudent(student)
-                "delete" -> confirmDeleteStudent(student)
-                "call" -> callStudent(student.phone)
-                "email" -> emailStudent(student.email)
-                "sms" -> {
-                    lastClickedStudent = student
-                    sendSms(student)
-                }
-            }
+        adapter = StudentListAdapter { student, action ->
+            handleItemAction(student, action)
         }
         recyclerView.adapter = adapter
+
+        viewModel.allStudents.observe(this) { students ->
+            adapter.submitList(students)
+        }
+
         registerForContextMenu(recyclerView)
 
         setupSearchView()
@@ -87,6 +86,19 @@ class MainActivity: AppCompatActivity() {
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.main_menu, menu)
         return true
+    }
+
+    private fun handleItemAction(student: Student, action: String) {
+        when (action) {
+            "update" -> updateStudent(student)
+            "delete" -> confirmDeleteStudent(student)
+            "call" -> callStudent(student.phone)
+            "email" -> emailStudent(student.email)
+            "sms" -> {
+                lastClickedStudent = student
+                sendSms(student)
+            }
+        }
     }
 
     private fun setupSearchView() {
@@ -141,24 +153,14 @@ class MainActivity: AppCompatActivity() {
 
     private fun updateStudentList(query: String = "") {
         val students = if (query.isEmpty()) {
-            StudentDataSource.getStudents()
+            viewModel.allStudents
         } else {
-            StudentDataSource.searchStudents(query)
+            viewModel.searchResults
         }
 
-        adapter = StudentListAdapter(students) { student, action ->
-            when (action) {
-                "update" -> updateStudent(student)
-                "delete" -> confirmDeleteStudent(student)
-                "call" -> callStudent(student.phone)
-                "email" -> emailStudent(student.email)
-                "sms" -> {
-                    lastClickedStudent = student
-                    sendSms(student)
-                }
-            }
+        students.observe(this) { student ->
+            adapter.submitList(student)
         }
-        recyclerView.adapter = adapter
     }
 
     private fun confirmDeleteStudent(student: Student) {
@@ -166,7 +168,7 @@ class MainActivity: AppCompatActivity() {
             .setTitle("Xác nhận xóa")
             .setMessage("Bạn có chắc muốn xóa sinh viên ${student.fullName}?")
             .setPositiveButton("Xóa") { _, _ ->
-                StudentDataSource.removeStudent(student)
+                viewModel.delete(student)
                 updateStudentList()
                 Toast.makeText(this, "Đã xóa sinh viên", Toast.LENGTH_SHORT).show()
             }

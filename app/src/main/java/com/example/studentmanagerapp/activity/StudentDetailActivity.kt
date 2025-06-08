@@ -10,12 +10,12 @@ import android.widget.TextView
 import android.widget.Toast
 
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.net.toUri
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 
 import com.example.studentmanagerapp.R
-import com.example.studentmanagerapp.data.Student
-import androidx.core.net.toUri
+import com.example.studentmanagerapp.database.Student
 
 @Suppress("DEPRECATION")
 class StudentDetailActivity: AppCompatActivity() {

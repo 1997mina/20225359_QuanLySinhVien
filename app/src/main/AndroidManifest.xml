@@ -18,7 +18,7 @@
     </queries>
 
     <application
-        android:name=".application.StudentApplication"
+        android:name=".repository.StudentApplication"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"

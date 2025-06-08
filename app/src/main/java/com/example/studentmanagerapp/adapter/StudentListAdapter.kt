@@ -1,5 +1,6 @@
 package com.example.studentmanagerapp.adapter
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.util.Log
@@ -14,12 +15,19 @@ import androidx.recyclerview.widget.RecyclerView
 
 import com.example.studentmanagerapp.R
 import com.example.studentmanagerapp.activity.StudentDetailActivity
-import com.example.studentmanagerapp.data.Student
+import com.example.studentmanagerapp.database.Student
 
 class StudentListAdapter(
-    private val students: List<Student>,
     private val onItemAction: (Student, String) -> Unit
 ) : RecyclerView.Adapter<StudentListAdapter.StudentViewHolder>() {
+
+    private var students: List<Student> = emptyList()
+
+    @SuppressLint("NotifyDataSetChanged")
+    fun submitList(newStudents: List<Student>) {
+        students = newStudents
+        notifyDataSetChanged()
+    }
 
     inner class StudentViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val nameTextView: TextView = view.findViewById(R.id.student_name)
